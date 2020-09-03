@@ -3,10 +3,10 @@ package toolRental;
 public class ToolTypeCharges {
 
 	private String type;
-	private double charge;
-	private boolean weekdayCharge;
-	private boolean weekendCharge;
-	private boolean holidayCharge;
+	private String charge;
+	private String weekdayCharge;
+	private String weekendCharge;
+	private String holidayCharge;
 	
 	/**
 	 * Object that stores standard rental charge info.
@@ -15,7 +15,7 @@ public class ToolTypeCharges {
 	 * @param weekendCharge
 	 * @param holidayCharge
 	 */
-	public ToolTypeCharges(String type, double charge, boolean weekdayCharge, boolean weekendCharge, boolean holidayCharge)
+	public ToolTypeCharges(String type, String charge, String weekdayCharge, String weekendCharge, String holidayCharge)
 	{
 		this.type = type;
 		this.charge = charge;
@@ -30,16 +30,17 @@ public class ToolTypeCharges {
 	}
 	public double getCharge()
 	{
-		return this.charge;
+		double chargeValue = Double.parseDouble(this.charge);
+		return chargeValue;
 	}
 	
 	/**
 	 * 
 	 * @return charges
 	 */
-	public boolean[] getChargePeriods()
+	public String[] getChargePeriods()
 	{
-		boolean[] charges = new boolean[3];
+		String[] charges = new String[3];
 		for(int i=0;i<charges.length;i++)
 		{
 			switch(i) 

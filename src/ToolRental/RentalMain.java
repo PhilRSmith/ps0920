@@ -1,12 +1,15 @@
 package toolRental;
-import java.util.HashMap;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
-public class RentalMain {
-
-	public static void main(String[] args) 
+public class RentalMain 
+{
+	
+	public static void main(String[] args) throws FileNotFoundException, IOException
 	{
-		ToolTypeCharges ladder = new ToolTypeCharges("ladder", 1.99, true, true, false);
-		System.out.println(ladder.getChargePeriods()[2]);
+		ToolsInventory rentalInventory = new ToolsInventory();
+		
+		System.out.println(rentalInventory.getInventory().get("JAKR").getType());
 		return;
 	}
 

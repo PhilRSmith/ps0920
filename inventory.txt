@@ -1,0 +1,4 @@
+Ladder, Werner, LADW
+Chainsaw, Stihl, CHNS
+Jackhammer, Ridgid, JAKR
+Jackhammer, DeWalt, JAKD
