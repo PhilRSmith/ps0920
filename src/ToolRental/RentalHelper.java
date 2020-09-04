@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.Scanner;
 
 public class RentalHelper {
 
@@ -31,42 +32,174 @@ public class RentalHelper {
 	 */
 	private void Checkout(Calendar c, ToolsInventory ourInventory) 
 	{
+		String inputDate;
+		Tool selectedTool;
+		int daysRented;
+		Scanner input = new Scanner(System.in);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy");
 		/*
 		 * We'll ask the user to input the desired info for checkout here:
 		 * checkout date, toolCode, days rented, and discount amount.
 		 */
-		//Test variables, will add user input later
-		String inputDate = "07-02-15";
+		inputDate = null;
+		boolean isProperDate = false;
+		while(isProperDate==false)
+		{
+			System.out.println("Please input the checkout date in the form 'MM-DD-YY' - Example: 01-01-20");
+			while(!input.hasNext()) 
+			{
+				System.out.println("Invalid input, please try again");
+				input.next();
+			}
+			inputDate = input.nextLine();
+			try
+			{isProperDate = checkIfProperDate(inputDate);}
+			catch(Exception e)
+			{	isProperDate = false; System.out.println(e);}
+		}
+		
 		try
 		{
 			c.setTime(dateFormat.parse(inputDate));
 		}
 		catch(ParseException e) 
 		{
-			System.out.println("Invalid input date, please enter in the format: 'MM-DD-YY' .");
+			System.out.println("Unparseable date, terminating program");
+			input.close();
 			return;
 		}
-		String inputToolCode = "JAKR";
-		int daysRented = 6; //NOTE: Need to throw an exception on this if #days<1
-		int discountAmount = 10; //NOTE: Need to throw an exception on this if discount is not between 0-100
 		
-		Tool selectedTool = ourInventory.getInventory().get(inputToolCode);
+		boolean specifiedToolExists = false;
+		selectedTool = null;
+		while(specifiedToolExists==false)
+		{
+			System.out.println("Please input the four letter toolcode for the selected item - Example: JAKR");
+			while(!input.hasNext()) 
+			{
+				System.out.println("Invalid input, please try again");
+				input.next();
+			}
+			
+			String inputToolCode = input.nextLine();
+		    selectedTool = ourInventory.getInventory().get(inputToolCode);
+			if(selectedTool!=null)
+			{
+				specifiedToolExists=true;
+			}
+			else
+			{
+				System.out.println("Couldn't find the tool associated with the input toolcode, please try again");
+			}
+		}
+		
+		daysRented=1;
+		boolean validDayInput = false;
+		while(validDayInput==false)
+		{
+			System.out.println("Please input the number of days you would like to rent the tool for (integer value of 1 or greater)");
+			while(!input.hasNextInt()) 
+			{
+				System.out.println("Input was not an integer, please try again");
+				input.next();
+			}
+			daysRented = input.nextInt();
+			try
+			{validDayInput = checkIfEnoughDays(daysRented);}
+			catch(Exception e)
+			{	validDayInput = false; System.out.println(e);}
+		}
+		
+		int discountAmount=0; //NOTE: Need to throw an exception on this if discount is not between 0-100
+		boolean validDiscountInput = false;
+		while(validDiscountInput==false)
+		{
+			System.out.println("Please input the percent discount you'd like to give the customer. (Integer value between 0 and 100)");
+			while(!input.hasNextInt()) 
+			{
+				System.out.println("Input was not an integer, please try again");
+				input.next();
+			}
+			discountAmount = input.nextInt();
+			try
+			{validDiscountInput = checkIfInPercentRange(discountAmount);}
+			catch(Exception e)
+			{ validDiscountInput = false; System.out.println(e);}
+			
+		}
+		
+		/*Finds the desired tool if it exists then calculates the number of chargeable days*/
 		if(selectedTool!=null)
 		{
 			ToolTypeInfo selectedToolInfo = ourInventory.getToolCharges().get(selectedTool.getType());
 			int chargeDays = getChargeableDays(c, selectedToolInfo, inputDate, daysRented);
+			
+			System.out.println("Thank you. I'm generating the Rental Agreement now...");
+			System.out.println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
 		}
 		else
 		{
-			System.out.println("Input tool code was invalid!");
+			System.out.println("Input tool code was not found in system! I'm very sorry, please restart the program after this termination.");
 			shouldWeTerminate = true;
+			input.close();
 			return;
 		}
 		
 		
 		shouldWeTerminate=true;// will change this later to be based on user input at the end of transaction
+		input.close();
 	}
+	
+	/**
+	 * 
+	 * @param inputDate
+	 * @return
+	 * @throws InvalidDateException
+	 */
+	private boolean checkIfProperDate(String inputDate) throws InvalidDateException
+	{
+		Pattern properDateFormat = Pattern.compile("[0-1][0-9]-[0-3][0-9]-[0-9][0-9]");
+		Matcher properFormatChecker = properDateFormat.matcher(inputDate);
+		
+		if(properFormatChecker.matches()) 
+		{
+			return true;
+		}
+		else
+		{
+			throw new InvalidDateException("The input date cannot exist. Please input the checkout date in the form 'MM-DD-YY' - Example: 01-01-20");
+		}
+	}
+	
+	/**
+	 * 
+	 * @param daysToRent
+	 * @return
+	 * @throws InvalidRentalDaysException
+	 */
+	private boolean checkIfEnoughDays(int daysToRent) throws InvalidRentalDaysException
+	{
+		if(daysToRent<1)
+		{
+			throw new InvalidRentalDaysException("The number of days specified to rent the tool was less than 1, Please enter an integer of 1 or higher");
+		}
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param discountPercent
+	 * @return
+	 * @throws InvalidDiscountPercentException
+	 */
+	private boolean checkIfInPercentRange(int discountPercent) throws InvalidDiscountPercentException
+	{
+		if(discountPercent<0||discountPercent>100)
+		{
+			throw new InvalidDiscountPercentException("The input discount percentage was invalid. Please input an integer value between 0 and 100");
+		}
+		return true;
+	}
+	
 	
 	/**
 	 * Calculates the number of days to charge the user for based on the tooltype info
