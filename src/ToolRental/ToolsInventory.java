@@ -33,20 +33,15 @@ public class ToolsInventory {
 		HashMap<String, Tool> builtInventory = new HashMap<String, Tool>();
 		try(BufferedReader br = new BufferedReader(new FileReader("inventory.txt")))
 		{
-			String line = "temp";
+			String line =br.readLine();
 			while(line!=null)
 			{
-				line = br.readLine();
-				if(line == null) 
-				{
-					break;
-				}
-				
 				String temp = line.replaceAll(" " , "");
 				String[] typeBrandCode = temp.split(",");
 				
 				Tool tool = new Tool(typeBrandCode[2], typeBrandCode[1], typeBrandCode[0]);
 				builtInventory.put(tool.getCode(), tool);
+				line = br.readLine();
 			}
 			br.close();
 		}
@@ -75,19 +70,15 @@ public class ToolsInventory {
 		HashMap<String, ToolTypeCharges> builtCharges = new HashMap<String, ToolTypeCharges>();
 		try(BufferedReader br = new BufferedReader(new FileReader("toolTypeCharges.txt")))
 		{
-			String line = "temp";
+			String line = br.readLine();
 			while(line!=null)
 			{
-				line = br.readLine();
-				if(line == null) 
-				{
-					break;
-				}
-				
 				String temp = line.replaceAll(" " , "");
 				String[] toolTypeInfo = temp.split(",");
+				
 				ToolTypeCharges charges = new ToolTypeCharges(toolTypeInfo[0], toolTypeInfo[1], toolTypeInfo[2], toolTypeInfo[3], toolTypeInfo[4]);
 				builtCharges.put(charges.getType(), charges);
+				line = br.readLine();
 			}
 			br.close();
 		}
