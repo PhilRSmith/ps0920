@@ -1,6 +1,6 @@
 package toolRental;
 
-public class ToolTypeCharges {
+public class ToolTypeInfo {
 
 	private String type;
 	private String charge;
@@ -15,7 +15,7 @@ public class ToolTypeCharges {
 	 * @param weekendCharge
 	 * @param holidayCharge
 	 */
-	public ToolTypeCharges(String type, String charge, String weekdayCharge, String weekendCharge, String holidayCharge)
+	public ToolTypeInfo(String type, String charge, String weekdayCharge, String weekendCharge, String holidayCharge)
 	{
 		this.type = type;
 		this.charge = charge;

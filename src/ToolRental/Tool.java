@@ -6,13 +6,6 @@ public class Tool {
 	private String brand;
 	private String toolType;
 	
-	public Tool() //Just a default constructor, hope I don't forget to remove this. REMOVE THIS
-	{
-		this.toolCode = null;
-		this.brand = null;
-		this.toolType = null;
-	}
-	
 	public Tool(String code , String brand, String type)
 	{
 		this.toolCode = code;

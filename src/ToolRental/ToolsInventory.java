@@ -9,7 +9,7 @@ import java.io.IOException;
 public class ToolsInventory {
 	
 	private HashMap<String,Tool> inventory = new HashMap<String,Tool>();
-	private HashMap<String, ToolTypeCharges> toolCharges = new HashMap<String, ToolTypeCharges>();
+	private HashMap<String, ToolTypeInfo> toolCharges = new HashMap<String, ToolTypeInfo>();
 	
 	/**
 	 * Default Constructor of Inventory system (may just replace this all with postgresql)
@@ -28,7 +28,7 @@ public class ToolsInventory {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public HashMap<String,Tool> readInventory() throws FileNotFoundException, IOException
+	private HashMap<String,Tool> readInventory() throws FileNotFoundException, IOException
 	{
 		HashMap<String, Tool> builtInventory = new HashMap<String, Tool>();
 		try(BufferedReader br = new BufferedReader(new FileReader("inventory.txt")))
@@ -65,9 +65,9 @@ public class ToolsInventory {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public HashMap<String,ToolTypeCharges> readToolCharges() throws FileNotFoundException, IOException
+	private HashMap<String,ToolTypeInfo> readToolCharges() throws FileNotFoundException, IOException
 	{
-		HashMap<String, ToolTypeCharges> builtCharges = new HashMap<String, ToolTypeCharges>();
+		HashMap<String, ToolTypeInfo> builtCharges = new HashMap<String, ToolTypeInfo>();
 		try(BufferedReader br = new BufferedReader(new FileReader("toolTypeCharges.txt")))
 		{
 			String line = br.readLine();
@@ -76,7 +76,7 @@ public class ToolsInventory {
 				String temp = line.replaceAll(" " , "");
 				String[] toolTypeInfo = temp.split(",");
 				
-				ToolTypeCharges charges = new ToolTypeCharges(toolTypeInfo[0], toolTypeInfo[1], toolTypeInfo[2], toolTypeInfo[3], toolTypeInfo[4]);
+				ToolTypeInfo charges = new ToolTypeInfo(toolTypeInfo[0], toolTypeInfo[1], toolTypeInfo[2], toolTypeInfo[3], toolTypeInfo[4]);
 				builtCharges.put(charges.getType(), charges);
 				line = br.readLine();
 			}
@@ -89,7 +89,7 @@ public class ToolsInventory {
 	 * grabs the tool type charges hashmap
 	 * @return
 	 */
-	public HashMap<String, ToolTypeCharges> getToolCharges()
+	public HashMap<String, ToolTypeInfo> getToolCharges()
 	{
 		return this.toolCharges;
 	}
