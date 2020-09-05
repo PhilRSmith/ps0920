@@ -41,9 +41,10 @@ public class RentalHelper {
 	 * Everything else should be automated and the rental agreement should be generated on the console.
 	 * Modifies object values to be used when printing the final agreement.
 	 */
-	private void Checkout(String toolCode , String inputDate, int daysRented, int discountAmount) 
+	public RentalAgreement Checkout(String toolCode , String inputDate, int daysRented, int discountAmount) 
 	throws InvalidRentalDaysException, InvalidDiscountPercentException , FileNotFoundException, IOException
 	{
+		RentalAgreement contract;
 		ToolsInventory ourInventory = new ToolsInventory();
 		Calendar c = Calendar.getInstance();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
@@ -54,7 +55,7 @@ public class RentalHelper {
 		catch(ParseException e) 
 		{
 			System.out.println("Unparseable date, terminating program");
-			return;
+			return null;
 		}
 		
 		
@@ -64,7 +65,7 @@ public class RentalHelper {
 		if(selectedTool==null)
 		{
 			System.out.println("Couldn't find the tool associated with the input toolcode, terminating program. Please try again");
-			return;
+			return null;
 		}
 		else
 		{
@@ -92,7 +93,7 @@ public class RentalHelper {
 		}
 			
 	
-		ToolTypeInfo selectedToolInfo = ourInventory.getToolCharges().get(this.rentedTool.getType());
+		ToolTypeInfo selectedToolInfo = ourInventory.getToolsInfo().get(this.rentedTool.getType());
 		int chargeDays = getChargeableDays(c, selectedToolInfo, inputDate, daysRented);
 		this.rentedToolInfo = selectedToolInfo;
 		this.chargeableDays = chargeDays;
@@ -100,11 +101,10 @@ public class RentalHelper {
 		System.out.println("Thank you. I'm generating the Rental Agreement now!");
 		System.out.println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
 		double[] calculatedCharges = calculateCharges();
-		RentalAgreement contract = new RentalAgreement(this.rentedTool , this.checkoutDate, 
-														this.dueDate, this.daysRented, this.chargeableDays, 
-														this.discount, calculatedCharges);
-		contract.PrintAgreement();
-		
+		contract = new RentalAgreement(this.rentedTool , this.checkoutDate, 
+											this.dueDate, this.daysRented, this.chargeableDays, 
+											this.discount, calculatedCharges);
+		return contract;
 	}
 	
 	/**
@@ -298,7 +298,7 @@ public class RentalHelper {
 		String inputDate = null;
 		String inputToolCode = null;
 		int daysRented, discountAmount;
-		
+		RentalAgreement rentalContract;
 		Scanner input = new Scanner(System.in);
 		
 		boolean isProperDate = false;
@@ -349,7 +349,8 @@ public class RentalHelper {
 		
 		try 
 		{
-			Checkout(inputToolCode, inputDate, daysRented, discountAmount);
+			rentalContract = Checkout(inputToolCode, inputDate, daysRented, discountAmount);
+			rentalContract.PrintAgreement();
 		}
 		catch(Exception e)
 		{

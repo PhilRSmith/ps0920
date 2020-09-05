@@ -89,7 +89,7 @@ public class ToolsInventory {
 	 * grabs the tool type charges hashmap
 	 * @return
 	 */
-	public HashMap<String, ToolTypeInfo> getToolCharges()
+	public HashMap<String, ToolTypeInfo> getToolsInfo()
 	{
 		return this.toolCharges;
 	}

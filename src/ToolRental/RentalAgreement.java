@@ -39,6 +39,152 @@ public class RentalAgreement {
 		}
 	}
 	
+	
+	
+	public String getCheckoutDate() {
+		return checkoutDate;
+	}
+
+
+
+	public void setCheckoutDate(String checkoutDate) {
+		this.checkoutDate = checkoutDate;
+	}
+
+
+
+	public String getDueDate() {
+		return dueDate;
+	}
+
+
+
+	public void setDueDate(String dueDate) {
+		this.dueDate = dueDate;
+	}
+
+
+
+	public String getToolCode() {
+		return toolCode;
+	}
+
+
+
+	public void setToolCode(String toolCode) {
+		this.toolCode = toolCode;
+	}
+
+
+
+	public String getToolType() {
+		return toolType;
+	}
+
+
+
+	public void setToolType(String toolType) {
+		this.toolType = toolType;
+	}
+
+
+
+	public String getToolBrand() {
+		return toolBrand;
+	}
+
+
+
+	public void setToolBrand(String toolBrand) {
+		this.toolBrand = toolBrand;
+	}
+
+
+
+	public int getDaysRented() {
+		return daysRented;
+	}
+
+
+
+	public void setDaysRented(int daysRented) {
+		this.daysRented = daysRented;
+	}
+
+
+
+	public int getChargeableDays() {
+		return chargeableDays;
+	}
+
+
+
+	public void setChargeableDays(int chargeableDays) {
+		this.chargeableDays = chargeableDays;
+	}
+
+
+
+	public int getDiscount() {
+		return discount;
+	}
+
+
+
+	public void setDiscount(int discount) {
+		this.discount = discount;
+	}
+
+
+
+	public double getDailyCharge() {
+		return dailyCharge;
+	}
+
+
+
+	public void setDailyCharge(double dailyCharge) {
+		this.dailyCharge = dailyCharge;
+	}
+
+
+
+	public double getPreDiscountCharge() {
+		return preDiscountCharge;
+	}
+
+
+
+	public void setPreDiscountCharge(double preDiscountCharge) {
+		this.preDiscountCharge = preDiscountCharge;
+	}
+
+
+
+	public double getDiscountAmount() {
+		return discountAmount;
+	}
+
+
+
+	public void setDiscountAmount(double discountAmount) {
+		this.discountAmount = discountAmount;
+	}
+
+
+
+	public double getFinalCharge() {
+		return finalCharge;
+	}
+
+
+
+	public void setFinalCharge(double finalCharge) {
+		this.finalCharge = finalCharge;
+	}
+
+
+
 	public void PrintAgreement() 
 	{
 		NumberFormat usd = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
