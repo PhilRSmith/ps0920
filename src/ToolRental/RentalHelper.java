@@ -4,8 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -33,7 +31,7 @@ public class RentalHelper {
 	}
 	
 	/**
-	 * Checkout function will output all necessary info to the console if the transaction
+	 * Checkout function will sort through provided information and generate a rental agreement object, then prints its contents.
 	 * is successfully completed.
 	 * The only inputs the user should be required to have are:
 	 * 1. The checkout date
@@ -43,11 +41,14 @@ public class RentalHelper {
 	 * Everything else should be automated and the rental agreement should be generated on the console.
 	 * Modifies object values to be used when printing the final agreement.
 	 */
-	private void Checkout(ToolsInventory ourInventory , String toolCode , String inputDate, int daysRented, int discountAmount) 
+	private void Checkout(String toolCode , String inputDate, int daysRented, int discountAmount) 
+	throws InvalidRentalDaysException, InvalidDiscountPercentException , FileNotFoundException, IOException
 	{
+		ToolsInventory ourInventory = new ToolsInventory();
 		Calendar c = Calendar.getInstance();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 		
+		this.checkoutDate = inputDate;
 		try
 		{c.setTime(dateFormat.parse(inputDate));}
 		catch(ParseException e) 
@@ -56,19 +57,40 @@ public class RentalHelper {
 			return;
 		}
 		
-		/*Check if input days rented throws exception*/
-		try
-		{checkIfEnoughDays(daysRented); this.daysRented=daysRented;}
-		catch(Exception e)
-		{System.out.println(e); return;}
 		
-		try
-		{checkIfInPercentRange(discountAmount); this.discount = discountAmount;}
-		catch(Exception e)
-		{System.out.println(e); return;}
+		Tool selectedTool = null;
 			
+	    selectedTool = ourInventory.getInventory().get(toolCode);
+		if(selectedTool==null)
+		{
+			System.out.println("Couldn't find the tool associated with the input toolcode, terminating program. Please try again");
+			return;
+		}
+		else
+		{
+			this.rentedTool = selectedTool;
+		}
 		
-		/*double checks that the desired tool exists then calculates the number of chargeable days*/
+		/*Check if input days rented throws exception*/
+		if(checkIfEnoughDays(daysRented)==false)
+		{
+			throw new InvalidRentalDaysException("The number of days specified to rent the tool was less than 1. Please restart and enter an integer of 1 or higher");
+		}
+		else
+		{
+			this.daysRented = daysRented;
+		}
+		
+		/*Check if input discount throws exception*/
+		if(checkIfInPercentRange(discountAmount)==false) 
+		{
+			throw new InvalidDiscountPercentException("The input discount percentage was invalid. Please restart and input an integer value between 0 and 100");
+		}
+		else
+		{
+			this.discount = discountAmount;
+		}
+			
 	
 		ToolTypeInfo selectedToolInfo = ourInventory.getToolCharges().get(this.rentedTool.getType());
 		int chargeDays = getChargeableDays(c, selectedToolInfo, inputDate, daysRented);
@@ -77,65 +99,30 @@ public class RentalHelper {
 		System.out.println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
 		System.out.println("Thank you. I'm generating the Rental Agreement now!");
 		System.out.println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
-		printRentalAgreement();
-			
-		
+		double[] calculatedCharges = calculateCharges();
+		RentalAgreement contract = new RentalAgreement(this.rentedTool , this.checkoutDate, 
+														this.dueDate, this.daysRented, this.chargeableDays, 
+														this.discount, calculatedCharges);
+		contract.PrintAgreement();
 		
 	}
 	
 	/**
 	 * Performs the final output of Rental Agreement info using this instantiated objects properties that were filled in.
 	 */
-	private void printRentalAgreement() 
-	{
-		NumberFormat usd = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
-		double[] calculatedCharges = calculateCharges();
-		double preDiscountCharge = 0, discountAmount =0, finalCharge =0;
-		
-		for(int i=0;i<calculatedCharges.length;i++) 
-		{
-			switch(i) 
-			{
-				case 0:
-				{preDiscountCharge = calculatedCharges[i]; break;}
-				case 1:
-				{discountAmount = calculatedCharges[i]; break;}
-				case 2:
-				{finalCharge = calculatedCharges[i]; break;}
-			}
-			
-				
-			
-		}
-		System.out.println("Tool code: " + this.rentedTool.getCode());
-		System.out.println("Tool type: " + this.rentedTool.getType());
-		System.out.println("Tool brand: " + this.rentedTool.getBrand());
-		System.out.println("Days rented: " + this.daysRented);
-		System.out.println("Checkout date: " + this.checkoutDate);
-		System.out.println("Due date: " + this.dueDate);
-		System.out.println("Daily rate: " + usd.format(this.rentedToolInfo.getCharge()));
-		System.out.println("Chargeable days: "+ this.chargeableDays);
-		System.out.println("Pre-Discount charge: " + usd.format(preDiscountCharge));
-		System.out.println("Discount percentage: " + this.discount + "%");
-		System.out.println("Discount amount: " + usd.format(discountAmount));
-		System.out.println("Final charge: " + usd.format(finalCharge));
-		System.out.println();
-		System.out.println("Sign Here: ______________________________");
-		System.out.println("Thank you for renting with us, have a great day!");
-		//Note: Just need to format the output
-	}
 	
 	private double[] calculateCharges()
-	{	/* index 0 = pre-discount , index 1 = discount amount, index 2 = final charge*/
-		double[] charges = new double[3];
+	{	/* index 0 = pre-discount , index 1 = discount amount, index 2 = final charge , index 3 = daily charge*/
+		double[] charges = new double[4];
 		charges[0] = this.rentedToolInfo.getCharge() * this.chargeableDays;
 		charges[1] = charges[0] * (Double.valueOf(this.discount)/100.0);
 		charges[2] = charges[0] - charges[1];
+		charges[3] = this.rentedToolInfo.getCharge();
 		return charges;
 	}
 	
 	/**
-	 * 
+	 * Checks if user input date with proper formatting
 	 * @param inputDate
 	 * @return
 	 * @throws InvalidDateException
@@ -147,25 +134,37 @@ public class RentalHelper {
 		
 		if(properFormatChecker.matches()) 
 		{
+			String[] validDateCheck = inputDate.split("/");
+			if(Integer.parseInt(validDateCheck[0])>12)
+			{
+				System.out.println("The entered month is greater than 12, not possible on calendar -- Terminating program, please try again.");
+				throw new InvalidDateException("");
+			}
+			if(Integer.parseInt(validDateCheck[1]) > 31)
+			{
+				System.out.println("The entered day is greater than 31, not possible on calendar -- Terminating program, please try again.");
+				throw new InvalidDateException("");
+			}
 			return true;
 		}
 		else
 		{
 			throw new InvalidDateException("The input date cannot exist. Please input the checkout date in the form 'MM-DD-YY' - Example: 01/01/20");
 		}
+		
+		
 	}
 	
 	/**
 	 * 
 	 * @param daysToRent
 	 * @return
-	 * @throws InvalidRentalDaysException
 	 */
-	private boolean checkIfEnoughDays(int daysToRent) throws InvalidRentalDaysException
+	private boolean checkIfEnoughDays(int daysToRent)
 	{
 		if(daysToRent<1)
 		{
-			throw new InvalidRentalDaysException("The number of days specified to rent the tool was less than 1, Please enter an integer of 1 or higher");
+			return false;
 		}
 		return true;
 	}
@@ -174,13 +173,12 @@ public class RentalHelper {
 	 * 
 	 * @param discountPercent
 	 * @return
-	 * @throws InvalidDiscountPercentException
 	 */
-	private boolean checkIfInPercentRange(int discountPercent) throws InvalidDiscountPercentException
+	private boolean checkIfInPercentRange(int discountPercent)
 	{
 		if(discountPercent<0||discountPercent>100)
 		{
-			throw new InvalidDiscountPercentException("The input discount percentage was invalid. Please input an integer value between 0 and 100");
+			return false;
 		}
 		return true;
 	}
@@ -188,6 +186,7 @@ public class RentalHelper {
 	
 	/**
 	 * Calculates the number of days to charge the user for based on the tooltype info
+	 * Also sets the due date or the desired rental
 	 * @param calendar : c, library for calendar functions
 	 * @param toolInfo : object containing info on when to charge user for type of tool
 	 * @param inputDate : initial checkout date
@@ -208,6 +207,7 @@ public class RentalHelper {
 		
 		for(int i=0; i<daysRented;i++)
 		{
+			c.add(Calendar.DATE, 1);
 			int dayOfWeek = c.get(Calendar.DAY_OF_WEEK); /* 1 & 7 are sunday and saturday respectively*/
 			formattedDate = dateFormat.format(c.getTime()); /*Formatting the time for the regex check on holidays*/
 			Matcher fourthJulyMatcher = fourthJulyDate.matcher(formattedDate);
@@ -228,8 +228,6 @@ public class RentalHelper {
 				if(toolChargePeriods[0].equalsIgnoreCase("yes"))
 					{daysToCharge++;}
 			}
-			
-			c.add(Calendar.DATE, 1);
 		}
 		
 		
@@ -247,6 +245,7 @@ public class RentalHelper {
 	
 	/**
 	 * finds the exact date of labor day on a given year based on the current calendar.
+	 * this operates on the assumption that the customer won't be renting something into September of the next year.
 	 * @param c : calendar
 	 * @param dateFormat : a simple date format that makes it easier to use regex
 	 * @return
@@ -290,20 +289,17 @@ public class RentalHelper {
 	}
 	
 	/**
-	 * Driver function, runs the actual program.
+	 * Driver function, accepts user input, performs basic handling of it, then runs the actual program.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void runRental()throws FileNotFoundException, IOException
+	public void runRental()
 	{
-		ToolsInventory rentalInventory = new ToolsInventory();
 		String inputDate = null;
 		String inputToolCode = null;
-		Tool selectedTool;
 		int daysRented, discountAmount;
 		
 		Scanner input = new Scanner(System.in);
-		
 		
 		boolean isProperDate = false;
 		while(isProperDate==false)
@@ -316,34 +312,21 @@ public class RentalHelper {
 			}
 			inputDate = input.nextLine();
 			try
-			{isProperDate = checkIfProperDate(inputDate); 	this.checkoutDate = inputDate;}
+			{isProperDate = checkIfProperDate(inputDate);}
 			catch(Exception e)
 			{isProperDate = false; System.out.println(e);}
 		}
 		
-		boolean specifiedToolExists = false;
-		selectedTool = null;
-		while(specifiedToolExists==false)
+		
+		System.out.println("Please input the four letter toolcode for the selected item - Example: JAKR");
+		while(!input.hasNext()) 
 		{
-			System.out.println("Please input the four letter toolcode for the selected item - Example: JAKR");
-			while(!input.hasNext()) 
-			{
-				System.out.println("Invalid input, please try again");
-				input.next();
-			}
-			
-			inputToolCode = input.nextLine();
-		    selectedTool = rentalInventory.getInventory().get(inputToolCode);
-			if(selectedTool!=null)
-			{
-				specifiedToolExists=true;
-				this.rentedTool = selectedTool;
-			}
-			else
-			{
-				System.out.println("Couldn't find the tool associated with the input toolcode, please try again");
-			}
+			System.out.println("Invalid input, please try again. Enter the four letter toolcode for the selected item - Example: JAKR");
+			input.next();
 		}
+		
+		inputToolCode = input.nextLine();
+	
 		
 		daysRented=1;
 		System.out.println("Please input the number of days you would like to rent the tool for (integer value of 1 or greater)");
@@ -363,7 +346,16 @@ public class RentalHelper {
 		discountAmount = input.nextInt();
 			
 		input.close();
-		Checkout(rentalInventory, inputToolCode, inputDate, daysRented, discountAmount);
+		
+		try 
+		{
+			Checkout(inputToolCode, inputDate, daysRented, discountAmount);
+		}
+		catch(Exception e)
+		{
+			System.out.println(e); return;
+		}
+		
 		
 		return;
 	}
