@@ -3,6 +3,8 @@ Author: Philip R. Smith
 
 Initial Completion date: 9/5/2020
 
+Note: My goal was to have this as completely self contained as possible for easy reading and review. There are no outside dependencies, everything should be runnable just using the java sdk and the jar file with the instructions.
+
 ### Instructions to run
 - Have the text files, "inventory.txt" and "toolTypeCharges.txt" in the same directory as MiniRental.jar .
 - the text files serve as the data used in the program refer to section "Text file format" for more info if you want to change the contents.
