@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -44,7 +46,7 @@ public class RentalHelper {
 	private void Checkout(ToolsInventory ourInventory , String toolCode , String inputDate, int daysRented, int discountAmount) 
 	{
 		Calendar c = Calendar.getInstance();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 		
 		try
 		{c.setTime(dateFormat.parse(inputDate));}
@@ -72,6 +74,7 @@ public class RentalHelper {
 		int chargeDays = getChargeableDays(c, selectedToolInfo, inputDate, daysRented);
 		this.rentedToolInfo = selectedToolInfo;
 		this.chargeableDays = chargeDays;
+		System.out.println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
 		System.out.println("Thank you. I'm generating the Rental Agreement now!");
 		System.out.println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
 		printRentalAgreement();
@@ -85,6 +88,7 @@ public class RentalHelper {
 	 */
 	private void printRentalAgreement() 
 	{
+		NumberFormat usd = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
 		double[] calculatedCharges = calculateCharges();
 		double preDiscountCharge = 0, discountAmount =0, finalCharge =0;
 		
@@ -109,12 +113,12 @@ public class RentalHelper {
 		System.out.println("Days rented: " + this.daysRented);
 		System.out.println("Checkout date: " + this.checkoutDate);
 		System.out.println("Due date: " + this.dueDate);
-		System.out.println("Daily rate: " + this.rentedToolInfo.getCharge());
+		System.out.println("Daily rate: " + usd.format(this.rentedToolInfo.getCharge()));
 		System.out.println("Chargeable days: "+ this.chargeableDays);
-		System.out.println("Pre-Discount charge: " + preDiscountCharge);
+		System.out.println("Pre-Discount charge: " + usd.format(preDiscountCharge));
 		System.out.println("Discount percentage: " + this.discount + "%");
-		System.out.println("Discount amount: " + discountAmount);
-		System.out.println("Final charge: " + finalCharge);
+		System.out.println("Discount amount: " + usd.format(discountAmount));
+		System.out.println("Final charge: " + usd.format(finalCharge));
 		System.out.println();
 		System.out.println("Sign Here: ______________________________");
 		System.out.println("Thank you for renting with us, have a great day!");
@@ -138,7 +142,7 @@ public class RentalHelper {
 	 */
 	private boolean checkIfProperDate(String inputDate) throws InvalidDateException
 	{
-		Pattern properDateFormat = Pattern.compile("[0-1][0-9]-[0-3][0-9]-[0-9][0-9]");
+		Pattern properDateFormat = Pattern.compile("[0-1][0-9]/[0-3][0-9]/[0-9][0-9]");
 		Matcher properFormatChecker = properDateFormat.matcher(inputDate);
 		
 		if(properFormatChecker.matches()) 
@@ -147,7 +151,7 @@ public class RentalHelper {
 		}
 		else
 		{
-			throw new InvalidDateException("The input date cannot exist. Please input the checkout date in the form 'MM-DD-YY' - Example: 01-01-20");
+			throw new InvalidDateException("The input date cannot exist. Please input the checkout date in the form 'MM-DD-YY' - Example: 01/01/20");
 		}
 	}
 	
@@ -193,12 +197,12 @@ public class RentalHelper {
 	private int getChargeableDays(Calendar c, ToolTypeInfo toolInfo, String inputDate, int daysRented)
 	{
 		int daysToCharge = 0;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 		String formattedDate = "";
 		String[] toolChargePeriods = toolInfo.getChargePeriods();
 		
 		/*creating 4th of July holiday regex pattern*/
-		Pattern fourthJulyDate = Pattern.compile("07-04-[0-9]{2}");
+		Pattern fourthJulyDate = Pattern.compile("07/04/[0-9]{2}");
 		/*creating labor day regex pattern*/
 		Pattern laborDayDate = Pattern.compile(findLaborDay(c, dateFormat, inputDate)); /*grab labor day holiday date given the current year.*/
 		
@@ -250,8 +254,8 @@ public class RentalHelper {
 	private String findLaborDay(Calendar c, SimpleDateFormat dateFormat, String inputDate) throws NullPointerException
 	{
 		String currentDate = dateFormat.format(c.getTime());
-		String currentYear = currentDate.split("-")[2]; //Since this is formatted, shouldn't throw exception
-		String septemberInCurrentYear = "09-01-"+currentYear;
+		String currentYear = currentDate.split("/")[2]; //Since this is formatted, shouldn't throw exception
+		String septemberInCurrentYear = "09/01/"+currentYear;
 		
 		try 
 		{
@@ -304,7 +308,7 @@ public class RentalHelper {
 		boolean isProperDate = false;
 		while(isProperDate==false)
 		{
-			System.out.println("Please input the checkout date in the form 'MM-DD-YY' - Example: 01-01-20");
+			System.out.println("Please input the checkout date in the form 'MM/DD/YY' - Example: 01/01/20");
 			while(!input.hasNext()) 
 			{
 				System.out.println("Invalid input, please try again");
