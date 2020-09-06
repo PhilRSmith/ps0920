@@ -31,9 +31,8 @@ public class RentalHelper {
 	}
 	
 	/**
-	 * Checkout function will sort through provided information and generate a rental agreement object, then prints its contents.
-	 * is successfully completed.
-	 * The only inputs the user should be required to have are:
+	 * Checkout function will sort through provided information and generate a rental agreement object, which can print its contents.
+	 * The only inputs the function should be required to have are:
 	 * 1. The checkout date
 	 * 2. The tool code
 	 * 3. The number of days rented
@@ -106,11 +105,11 @@ public class RentalHelper {
 											this.discount, calculatedCharges);
 		return contract;
 	}
-	
+
 	/**
-	 * Performs the final output of Rental Agreement info using this instantiated objects properties that were filled in.
+	 * calculates the different costs for the rental
+	 * @return charges
 	 */
-	
 	private double[] calculateCharges()
 	{	/* index 0 = pre-discount , index 1 = discount amount, index 2 = final charge , index 3 = daily charge*/
 		double[] charges = new double[4];
@@ -122,9 +121,9 @@ public class RentalHelper {
 	}
 	
 	/**
-	 * Checks if user input date with proper formatting
+	 * Checks if user input the date with proper formatting
 	 * @param inputDate
-	 * @return
+	 * @return bool
 	 * @throws InvalidDateException
 	 */
 	private boolean checkIfProperDate(String inputDate) throws InvalidDateException
@@ -156,9 +155,9 @@ public class RentalHelper {
 	}
 	
 	/**
-	 * 
+	 * Checks if the number of days rented is 1 or greater
 	 * @param daysToRent
-	 * @return
+	 * @return bool
 	 */
 	private boolean checkIfEnoughDays(int daysToRent)
 	{
@@ -170,9 +169,9 @@ public class RentalHelper {
 	}
 	
 	/**
-	 * 
+	 * checks if the percent discount is between 0 and 100
 	 * @param discountPercent
-	 * @return
+	 * @return bool
 	 */
 	private boolean checkIfInPercentRange(int discountPercent)
 	{
@@ -186,7 +185,7 @@ public class RentalHelper {
 	
 	/**
 	 * Calculates the number of days to charge the user for based on the tooltype info
-	 * Also sets the due date or the desired rental
+	 * Also sets the due date or the desired rental (could make that as a separate function but less optimal, slightly cleaner)
 	 * @param calendar : c, library for calendar functions
 	 * @param toolInfo : object containing info on when to charge user for type of tool
 	 * @param inputDate : initial checkout date
@@ -248,7 +247,7 @@ public class RentalHelper {
 	 * this operates on the assumption that the customer won't be renting something into September of the next year.
 	 * @param c : calendar
 	 * @param dateFormat : a simple date format that makes it easier to use regex
-	 * @return
+	 * @return laborDayDate
 	 */
 	private String findLaborDay(Calendar c, SimpleDateFormat dateFormat, String inputDate) throws NullPointerException
 	{
