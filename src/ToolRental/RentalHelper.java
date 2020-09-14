@@ -287,7 +287,6 @@ public class RentalHelper {
 		{
 			System.out.println("Error made while resetting date after independence day check");
 		}
-		System.out.println(formattedFourthJulyDate);
 		return formattedFourthJulyDate;
 	}
 	
