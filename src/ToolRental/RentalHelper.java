@@ -200,7 +200,7 @@ public class RentalHelper {
 		String[] toolChargePeriods = toolInfo.getChargePeriods();
 		
 		/*creating 4th of July holiday regex pattern*/
-		Pattern fourthJulyDate = Pattern.compile("07/04/[0-9]{2}");
+		Pattern fourthJulyDate = Pattern.compile(findNearestFourthJuly(c, dateFormat, inputDate));
 		/*creating labor day regex pattern*/
 		Pattern laborDayDate = Pattern.compile(findLaborDay(c, dateFormat, inputDate)); /*grab labor day holiday date given the current year.*/
 		
@@ -212,14 +212,15 @@ public class RentalHelper {
 			Matcher fourthJulyMatcher = fourthJulyDate.matcher(formattedDate);
 			Matcher laborDayMatcher = laborDayDate.matcher(formattedDate);
 			
-			if(fourthJulyMatcher.matches() || laborDayMatcher.matches()) /* Holidays */
-			{
-				if(toolChargePeriods[2].equalsIgnoreCase("yes"))
-					{daysToCharge++;}
-			}
-			else if(dayOfWeek == 1 || dayOfWeek == 7) /*Weekend*/
+			
+			if(dayOfWeek == 1 || dayOfWeek == 7) /*Weekend*/
 			{
 				if(toolChargePeriods[1].equalsIgnoreCase("yes"))
+					{daysToCharge++;}
+			}
+			else if(fourthJulyMatcher.matches() || laborDayMatcher.matches()) /* Holidays */
+			{
+				if(toolChargePeriods[2].equalsIgnoreCase("yes"))
 					{daysToCharge++;}
 			}
 			else if(dayOfWeek>1&&dayOfWeek<7) /*Weekday*/
@@ -240,6 +241,54 @@ public class RentalHelper {
 			System.out.println("Error made while resetting date after calculating number of days to charge");
 		}
 		return daysToCharge;
+	}
+	
+	/**
+	 * finds the nearest weekday to independence day on a given year based on the current calendar.
+	 * this operates on the assumption that the customer won't be renting something into July of the next year.
+	 * @param c
+	 * @param dateFormat
+	 * @param inputDate
+	 * @return formatted date
+	 * @throws NullPointerException
+	 */
+	private String findNearestFourthJuly(Calendar c, SimpleDateFormat dateFormat,String inputDate) throws NullPointerException
+	{
+		String currentDate = dateFormat.format(c.getTime());
+		String currentYear = currentDate.split("/")[2];
+		String julyInCurrentYear = "07/04/"+currentYear;
+		
+		try
+		{
+			c.setTime(dateFormat.parse(julyInCurrentYear));
+		}
+		catch(ParseException ex)
+		{
+			System.out.println("ERROR: invalid input date for calendar parse -- Exiting");
+			return null;
+		}
+		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+		if(dayOfWeek==1)
+		{
+			c.add(Calendar.DATE, 1);
+		}
+		if(dayOfWeek==7)
+		{
+			c.add(Calendar.DATE, -1);
+		}
+		
+		
+		String formattedFourthJulyDate = dateFormat.format(c.getTime());
+		try 
+		{
+			c.setTime(dateFormat.parse(inputDate));
+		}
+		catch(ParseException ex)
+		{
+			System.out.println("Error made while resetting date after independence day check");
+		}
+		System.out.println(formattedFourthJulyDate);
+		return formattedFourthJulyDate;
 	}
 	
 	/**

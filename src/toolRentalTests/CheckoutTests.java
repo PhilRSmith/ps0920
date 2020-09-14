@@ -82,7 +82,7 @@ public class CheckoutTests {
 		int daysRented = 5;
 		String dueDate = "07/07/15";
 		int discount = 25;
-		int chargeableDays = 4; // expected value
+		int chargeableDays = 3; // expected value
 		
 		double dailyRentalCharge = inventory.getToolsInfo().get(inventory.getInventory().get(toolCode).getType()).getCharge();
 		double preDiscountCharge = dailyRentalCharge * chargeableDays;
@@ -145,7 +145,7 @@ public class CheckoutTests {
 		int daysRented = 9;
 		String dueDate = "07/11/15";
 		int discount = 0;
-		int chargeableDays = 6; // expected value
+		int chargeableDays = 5; // expected value
 		
 		double dailyRentalCharge = inventory.getToolsInfo().get(inventory.getInventory().get(toolCode).getType()).getCharge();
 		double preDiscountCharge = dailyRentalCharge * chargeableDays;
@@ -177,7 +177,7 @@ public class CheckoutTests {
 		int daysRented = 4;
 		String dueDate = "07/06/20";
 		int discount = 50;
-		int chargeableDays = 2; // expected value
+		int chargeableDays = 1; // expected value
 		
 		double dailyRentalCharge = inventory.getToolsInfo().get(inventory.getInventory().get(toolCode).getType()).getCharge();
 		double preDiscountCharge = dailyRentalCharge * chargeableDays;
